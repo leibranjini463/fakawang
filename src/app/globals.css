@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-brand-50: #fff1f6;
+  --color-brand-100: #ffe3ee;
+  --color-brand-200: #ffc9dd;
+  --color-brand-300: #ff9dbf;
+  --color-brand-400: #ff6b9d;
+  --color-brand-500: #ff4785;
+  --color-brand-600: #ed2168;
+  --color-brand-700: #c8144f;
+  --color-brand-800: #a71344;
+  --color-brand-900: #8d143d;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+:root {
+  --bg: #f6f6fb;
+  --bg-soft: #eef0f7;
+  --bg-card: #ffffff;
+  --fg: #191933;
+  --fg-muted: #6b7280;
+  --border: #ececf2;
+  --ring: rgba(255, 71, 133, 0.35);
+}
+
+[data-theme="dark"] {
+  --bg: #0e0e16;
+  --bg-soft: #14141f;
+  --bg-card: #1a1a26;
+  --fg: #eef0f7;
+  --fg-muted: #9aa0b0;
+  --border: #2a2a3a;
+  --ring: rgba(255, 107, 157, 0.4);
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+  body {
+    min-height: 100dvh;
+    background:
+      radial-gradient(1200px 600px at 100% -10%, var(--color-brand-100), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, #e6f0ff, transparent 55%),
+      var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  [data-theme="dark"] body {
+    background:
+      radial-gradient(1200px 600px at 100% -10%, rgba(199, 20, 79, 0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, rgba(30, 58, 138, 0.22), transparent 55%),
+      var(--bg);
+  }
+  * {
+    border-color: var(--border);
+  }
+  ::selection {
+    background: var(--color-brand-300);
+    color: #191933;
+  }
+}
+
+@layer components {
+  .card {
+    background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow:
+      0 1px 2px rgba(16, 16, 40, 0.04),
+      0 8px 24px -14px rgba(16, 16, 40, 0.12);
+    backdrop-filter: blur(6px);
+  }
+  .btn-brand {
+    background: linear-gradient(135deg, var(--color-brand-400), var(--color-brand-600));
+    color: #fff;
+    box-shadow: 0 6px 18px -6px var(--ring);
+  }
+  .btn-brand:hover {
+    filter: brightness(1.05);
+  }
+  .btn-brand:active {
+    transform: translateY(1px);
+  }
+  .input-base {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    outline: none;
+  }
+  .input-base:focus {
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  /* 后台数据表格精致化：表头分隔 + 行悬停高亮 */
+  .card table thead th {
+    font-weight: 600;
+    color: var(--fg-muted);
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .card table tbody tr {
+    transition: background 0.15s ease;
+  }
+  .card table tbody tr:hover {
+    background: color-mix(in srgb, var(--bg-soft) 55%, transparent);
+  }
+}
+
+/* Markdown 正文样式 */
+.prose-faka {
+  line-height: 1.75;
+  color: var(--fg);
+}
+.prose-faka h1,
+.prose-faka h2,
+.prose-faka h3 {
+  font-weight: 700;
+  margin: 1.2em 0 0.6em;
+}
+.prose-faka h2 { font-size: 1.25rem; }
+.prose-faka h3 { font-size: 1.1rem; }
+.prose-faka p { margin: 0.6em 0; }
+.prose-faka ul { list-style: disc; padding-left: 1.4em; margin: 0.6em 0; }
+.prose-faka ol { list-style: decimal; padding-left: 1.4em; margin: 0.6em 0; }
+.prose-faka a { color: var(--color-brand-600); text-decoration: underline; }
+.prose-faka code {
+  background: var(--bg-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 0.35em;
+  font-size: 0.9em;
+}
+.prose-faka img { max-width: 100%; border-radius: 0.6rem; }
+.prose-faka blockquote {
+  border-left: 3px solid var(--color-brand-400);
+  padding-left: 1em;
+  color: var(--fg-muted);
+  margin: 0.8em 0;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+}

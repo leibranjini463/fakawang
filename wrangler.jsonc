@@ -1,0 +1,55 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fakawang",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+
+  // 数据库。用「Deploy to Cloudflare」按钮部署时会自动创建并回填 database_id；
+  // 手动部署请先 `npx wrangler d1 create fakawang-db`，把返回的 id 填到下面。
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fakawang-db",
+      "database_id": "",
+      "migrations_dir": "drizzle"
+    }
+  ],
+
+  // KV：缓存支付建单结果、防重放。手动部署：`npx wrangler kv namespace create FAKA_KV`
+  "kv_namespaces": [
+    {
+      "binding": "FAKA_KV",
+      "id": ""
+    }
+  ],
+
+  // R2：商品图片上传（可选）。不需要图床可整段删掉。
+  // 手动部署：`npx wrangler r2 bucket create fakawang-assets`
+  "r2_buckets": [
+    {
+      "binding": "ASSETS_BUCKET",
+      "bucket_name": "fakawang-assets"
+    }
+  ],
+
+  // 定时任务：每分钟轮询链上到账 + 关闭超时订单；整点检查低库存并告警。
+  "triggers": {
+    "crons": ["* * * * *", "0 * * * *"]
+  }
+
+  // 绑定自定义域名（可选）：该域名的 DNS 需已托管在 Cloudflare，
+  // 部署时会自动创建 DNS 记录并签发证书。启用后记得同步改 .env.production 的
+  // NEXT_PUBLIC_SITE_URL，并在 Turnstile 后台把域名加进 Hostnames。
+  //
+  // "routes": [
+  //   { "pattern": "shop.example.com", "custom_domain": true }
+  // ]
+}

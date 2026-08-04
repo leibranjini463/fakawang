@@ -1,0 +1,51 @@
+# 本地开发用密钥。复制本文件为 `.dev.vars` 再填值（.dev.vars 已被 gitignore）。
+# 生产环境不要用这个文件，一律用 `npx wrangler secret put <名字>` 写进 Cloudflare。
+#
+# 生成强随机值：openssl rand -hex 32
+
+# ============ 必填 ============
+
+# 卡密加密主密钥（AES-256-GCM）
+# ⚠️ 丢失后所有已入库卡密永久无法解密，请离线备份
+CARD_ENC_KEY=""
+
+# 后台登录会话签名密钥。更换会导致所有管理员被登出
+SESSION_SECRET=""
+
+# 保护 /api/cron/tick 接口，防止他人手动触发定时任务
+CRON_SECRET=""
+
+# Turnstile 人机验证的「密钥」（服务端校验用，机密）
+# 下面是 Cloudflare 官方测试密钥：本地开发恒通过，正式环境务必替换
+# 与 .env.production 的 NEXT_PUBLIC_TURNSTILE_SITE_KEY 必须来自同一个 Widget
+TURNSTILE_SECRET="1x0000000000000000000000000000000AA"
+
+# 本地站点地址，用于拼支付回调
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
+# ============ 邮件（可选：发货通知与库存告警）============
+
+# https://resend.com 注册获取
+RESEND_API_KEY=""
+# 发件人，域名需在 Resend 完成验证
+MAIL_FROM="Fakawang <noreply@yourdomain.com>"
+
+# ============ 支付渠道（按需填，只填你要启用的）============
+
+# 支付宝个人码：与安卓监听端 App 共用的上报签名密钥
+ALIPAY_PUSH_SECRET=""
+
+# 易支付
+EPAY_KEY=""
+
+# 支付宝当面付
+ALIPAY_PRIVATE_KEY=""
+ALIPAY_PUBLIC_KEY=""
+
+# Binance Pay
+BINANCE_API_KEY=""
+BINANCE_SECRET=""
+
+# USDT 到账查询：TRON 链用 TronGrid，Polygon / Arbitrum 用 Etherscan V2
+TRONGRID_API_KEY=""
+ETHERSCAN_API_KEY=""

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784478992238,
+      "tag": "0000_tough_stranger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784527981458,
+      "tag": "0001_lyrical_butterfly",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1785765231228,
+      "tag": "0002_special_romulus",
+      "breakpoints": true
+    }
+  ]
+}
