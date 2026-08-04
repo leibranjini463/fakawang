@@ -4,7 +4,7 @@
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/certhon/fakawang)
 
-🔗 **在线预览**：<https://shop.muyear.com> —— 用本项目搭建的真实站点，可以直接下单体验完整流程（商品仅 ¥1，付款后会真的发货）。
+🔗 **在线预览**：<https://shop.muyear.com> —— 用本项目搭建的站点，可浏览前台实际效果。
 
 支持支付宝（**个人收款码** / 当面付 / 易支付）、USDT（TRC20 · Polygon · Arbitrum）、Binance Pay。
 
