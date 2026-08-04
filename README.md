@@ -326,7 +326,9 @@ CREATE UNIQUE INDEX alipay_lock_amount_uq
 
 📦 **现成 APK 下载**：[Release · android-v1.0](https://github.com/certhon/fakawang/releases/tag/android-v1.0)
 
-最低 Android 8.0，已正式签名。装好后在 App 内填「站点地址 / 账号标识 / 共享密钥」，授予**通知使用权**并**忽略电池优化**（不做会被系统杀掉导致漏单），再点「连通性自检」验证即可。
+<img src="./docs/08-android-app.jpg" width="300" alt="安卓监听端界面" />
+
+最低 Android 8.0，已正式签名。装好后在 App 内填「站点地址 / 账号标识 / 共享密钥」，授予**通知使用权**并**忽略电池优化**（不做会被系统杀掉导致漏单），再点「连通性自检」验证即可。界面上会实时显示权限状态、配置完整性与待上报队列积压，出问题一眼能看出卡在哪。
 
 也可以按下面的契约自己实现——协议很简单，一个 `NotificationListenerService` 加一次签名 POST。
 
