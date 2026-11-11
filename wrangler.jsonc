@@ -18,7 +18,7 @@
     {
       "binding": "DB",
       "database_name": "fakawang-db",
-      "database_id": "",
+      "database_id": "67a12d1a-55dd-45ce-af3e-d08fe8728c1d",
       "migrations_dir": "drizzle"
     }
   ],
@@ -27,20 +27,10 @@
   "kv_namespaces": [
     {
       "binding": "FAKA_KV",
-      "id": ""
+      "id": "ef63291d6a954ff2808aabc7ff2fe72b"
     }
   ],
 
-  // R2：商品图片上传（可选）。不需要图床可整段删掉。
-  // 手动部署：`npx wrangler r2 bucket create fakawang-assets`
-  "r2_buckets": [
-    {
-      "binding": "ASSETS_BUCKET",
-      "bucket_name": "fakawang-assets"
-    }
-  ],
-
-  // 定时任务：每分钟轮询链上到账 + 关闭超时订单；整点检查低库存并告警。
   "triggers": {
     "crons": ["* * * * *", "0 * * * *"]
   }
