@@ -27,7 +27,7 @@ const PROVIDERS = [
     provider: "usdt",
     name: "USDT（TRC20 / Polygon / Arbitrum）",
     tpl: '{\n  "chains": [\n    { "chain": "TRC20", "address": "T...", "enabled": true },\n    { "chain": "POLYGON", "address": "0x...", "enabled": true },\n    { "chain": "ARBITRUM", "address": "0x...", "enabled": true }\n  ]\n}',
-    secretHint: "API Key：TRONGRID_API_KEY（TRON）/ ETHERSCAN_API_KEY（Polygon+Arbitrum）",
+    secretHint: "API Key：TRONGRID_API_KEY（TRON，可选）/ Polygon 与 Arbitrum 走公共 RPC，免 key",
   },
   {
     provider: "binance_pay",
