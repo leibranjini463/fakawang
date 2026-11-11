@@ -17,19 +17,24 @@ import type { IncomingTx } from "./tron-grid";
 const TRANSFER_TOPIC =
   "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 
-/** 免 key 公共 RPC（每链按顺序尝试，任一可用即返回）。 */
+/** 免 key 公共 RPC（每链按顺序尝试，任一可用即返回）。注：Ankr 公共端点现已要求
+ *  个人 API Key，不可用；只列无需注册的公开端点。 */
 const PUBLIC_RPCS: Record<number, string[]> = {
   137: [
     "https://polygon-rpc.com",
     "https://polygon-bor-rpc.publicnode.com",
     "https://polygon.llamarpc.com",
-    "https://rpc.ankr.com/polygon",
+    "https://polygon-mainnet.public.blastapi.io",
+    "https://polygon.blockpi.network/v1/rpc/public",
+    "https://polygon.meowrpc.com",
   ],
   42161: [
     "https://arb1.arbitrum.io/rpc",
     "https://arbitrum-one.publicnode.com",
     "https://arbitrum.llamarpc.com",
-    "https://rpc.ankr.com/arbitrum",
+    "https://arb-mainnet.public.blastapi.io",
+    "https://arbitrum.blockpi.network/v1/rpc/public",
+    "https://arbitrum.meowrpc.com",
   ],
 };
 
@@ -51,8 +56,12 @@ interface RpcLog {
   data: string;
 }
 
-/** 对某链依次尝试公共 RPC，任一成功即返回结果；全部失败则抛错。 */
-async function callRpc(chainId: number, method: string, params: unknown[]): Promise<unknown> {
+/** 对某链依次尝试公共 RPC，任一成功即返回结果与所用节点；全部失败则抛错。 */
+async function callRpc(
+  chainId: number,
+  method: string,
+  params: unknown[],
+): Promise<{ result: unknown; url: string }> {
   const urls = PUBLIC_RPCS[chainId] ?? [];
   let lastErr: unknown = new Error("no public RPC configured for chain " + chainId);
   for (const url of urls) {
@@ -70,7 +79,7 @@ async function callRpc(chainId: number, method: string, params: unknown[]): Prom
         error?: { message?: string };
       };
       if (data.error) throw new Error(data.error.message || "RPC error");
-      return data.result;
+      return { result: data.result, url };
     } catch (e) {
       lastErr = e;
       console.log("[evm-scan:rpc-fail]", chainId, url, e instanceof Error ? e.message : e);
@@ -79,11 +88,11 @@ async function callRpc(chainId: number, method: string, params: unknown[]): Prom
   throw lastErr;
 }
 
-async function getLatestBlock(chainId: number): Promise<number> {
-  const hex = (await callRpc(chainId, "eth_blockNumber", [])) as string;
-  const n = parseInt(hex, 16);
+async function getLatestBlock(chainId: number): Promise<{ latest: number; url: string }> {
+  const { result, url } = await callRpc(chainId, "eth_blockNumber", []);
+  const n = parseInt(result as string, 16);
   if (!n) throw new Error("invalid latest block");
-  return n;
+  return { latest: n, url };
 }
 
 /** 把一条 Transfer 日志解析为 IncomingTx；格式不对返回 null。 */
@@ -115,7 +124,7 @@ export async function fetchEvmIncoming(
   _apiKey?: string,
 ): Promise<IncomingTx[]> {
   try {
-    const latest = await getLatestBlock(chainId);
+    const { latest } = await getLatestBlock(chainId);
     const span = LOOKBACK_MINUTES * (BLOCKS_PER_MINUTE[chainId] ?? 30);
     const fromBlock = Math.max(0, latest - span);
     const paddedTo = `0x000000000000000000000000${address.toLowerCase().slice(2)}`;
@@ -126,16 +135,17 @@ export async function fetchEvmIncoming(
     }
     // 分段并行查；个别段失败只丢该段（allSettled），不丢整轮结果
     const settled = await Promise.allSettled(
-      ranges.map(([from, to]) =>
-        callRpc(chainId, "eth_getLogs", [
+      ranges.map(async ([from, to]) => {
+        const { result } = await callRpc(chainId, "eth_getLogs", [
           {
             fromBlock: `0x${from.toString(16)}`,
             toBlock: `0x${to.toString(16)}`,
             address: usdtContract,
             topics: [TRANSFER_TOPIC, null, paddedTo],
           },
-        ]),
-      ),
+        ]);
+        return result;
+      }),
     );
     const chunks: RpcLog[][] = [];
     let failed = 0;
@@ -173,19 +183,20 @@ export async function fetchEvmRecentTransfers(
   chainId: number,
   usdtContract: string,
   blocks = 10,
-): Promise<{ latest: number; count: number; sample: IncomingTx[] }> {
-  const latest = await getLatestBlock(chainId);
+): Promise<{ latest: number; rpcUrl: string; count: number; sample: IncomingTx[] }> {
+  const { latest, url } = await getLatestBlock(chainId);
   const from = Math.max(0, latest - blocks + 1);
-  const logs = (await callRpc(chainId, "eth_getLogs", [
+  const { result } = await callRpc(chainId, "eth_getLogs", [
     {
       fromBlock: `0x${from.toString(16)}`,
       toBlock: `0x${latest.toString(16)}`,
       address: usdtContract,
       topics: [TRANSFER_TOPIC],
     },
-  ])) as RpcLog[];
-  const txs = (logs ?? [])
+  ]);
+  const logs = (result ?? []) as RpcLog[];
+  const txs = logs
     .map((log) => parseTransferLog(log, latest))
     .filter((t): t is IncomingTx => t !== null);
-  return { latest, count: txs.length, sample: txs.slice(0, 3) };
+  return { latest, rpcUrl: url, count: txs.length, sample: txs.slice(0, 3) };
 }
