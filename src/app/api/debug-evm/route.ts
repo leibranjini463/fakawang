@@ -17,8 +17,8 @@ export async function GET(req: Request) {
     return NextResponse.json({
       ok: true,
       diag: {
-        POLYGON: await diagnoseRpc(137),
-        ARBITRUM: await diagnoseRpc(42161),
+        POLYGON: await diagnoseRpc(137, CHAINS.POLYGON.usdtContract!),
+        ARBITRUM: await diagnoseRpc(42161, CHAINS.ARBITRUM.usdtContract!),
       },
     });
   }
