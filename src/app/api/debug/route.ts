@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSettings } from "@/lib/settings";
-import { getEnabledCategories, getProducts } from "@/services/storefront";
+import { getActiveAnnouncements, getEnabledCategories, getProducts } from "@/services/storefront";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,7 @@ export async function GET() {
     settings: () => getSettings(),
     categories: () => getEnabledCategories(),
     products: () => getProducts({}),
+    announcements: () => getActiveAnnouncements(),
   };
   for (const [name, fn] of Object.entries(tests)) {
     try {
