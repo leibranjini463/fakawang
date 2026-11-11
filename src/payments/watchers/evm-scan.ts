@@ -18,26 +18,26 @@ const TRANSFER_TOPIC =
   "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 
 /** 免 key 公共 RPC（每链按顺序尝试，任一可用即返回）。注：Ankr 公共端点现已要求
- *  个人 API Key，不可用；只列无需注册的公开端点。 */
+ *  个人 API Key，不可用；只列无需注册的公开端点。顺序按 Worker 实测可用性排，
+ *  最稳的放前面（publicnode / dRPC / 官方节点）；1rpc.io 已达用量上限，不可用。 */
 const PUBLIC_RPCS: Record<number, string[]> = {
   137: [
-    "https://polygon-rpc.com",
     "https://polygon-bor-rpc.publicnode.com",
+    "https://polygon.drpc.org",
+    "https://polygon-rpc.com",
     "https://polygon.llamarpc.com",
     "https://polygon-mainnet.public.blastapi.io",
     "https://polygon.blockpi.network/v1/rpc/public",
     "https://polygon.meowrpc.com",
-    "https://polygon.drpc.org",
-    "https://1rpc.io/matic",
   ],
   42161: [
     "https://arb1.arbitrum.io/rpc",
     "https://arbitrum-one.publicnode.com",
+    "https://arbitrum.drpc.org",
     "https://arbitrum.llamarpc.com",
     "https://arb-mainnet.public.blastapi.io",
     "https://arbitrum.blockpi.network/v1/rpc/public",
     "https://arbitrum.meowrpc.com",
-    "https://arbitrum.drpc.org",
   ],
 };
 
