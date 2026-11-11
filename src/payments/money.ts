@@ -1,13 +1,13 @@
 export type UsdtChain = "TRC20" | "POLYGON" | "ARBITRUM";
 
 export interface ChainMeta {
-  /** 链类型：tron 走 TronGrid，evm 走 Etherscan V2 多链 API */
+  /** 链类型：tron 走 TronGrid，evm 走公共 RPC eth_getLogs（免 key） */
   kind: "tron" | "evm";
   /** 链上 USDT 小数位 */
   decimals: number;
   /** 前台展示名 */
   label: string;
-  /** EVM 链 id（Etherscan V2 chainid），仅 evm 链 */
+  /** EVM 链 id，仅 evm 链 */
   evmChainId?: number;
   /** EVM 链上的 USDT 合约地址，仅 evm 链 */
   usdtContract?: string;
