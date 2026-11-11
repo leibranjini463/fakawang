@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { CHAINS, type UsdtChain } from "@/payments/money";
 import {
+  diagnoseRpc,
   fetchEvmIncoming,
   fetchEvmRecentTransfers,
 } from "@/payments/watchers/evm-scan";
@@ -11,7 +12,17 @@ import {
  * 只读公共链上数据，不读库、不写库、不含任何密钥。
  */
 export async function GET(req: Request) {
-  const address = new URL(req.url).searchParams.get("address") || undefined;
+  const params = new URL(req.url).searchParams;
+  if (params.get("diag") === "1") {
+    return NextResponse.json({
+      ok: true,
+      diag: {
+        POLYGON: await diagnoseRpc(137),
+        ARBITRUM: await diagnoseRpc(42161),
+      },
+    });
+  }
+  const address = params.get("address") || undefined;
   const out: Record<string, unknown> = {};
   for (const chain of ["POLYGON", "ARBITRUM"] as UsdtChain[]) {
     const meta = CHAINS[chain];
