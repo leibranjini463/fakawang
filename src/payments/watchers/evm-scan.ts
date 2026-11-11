@@ -176,6 +176,32 @@ export async function fetchEvmIncoming(
 }
 
 /**
+ * 诊断：逐个试某链的公共 RPC，返回每个节点的连通结果（供临时探针用）。
+ */
+export async function diagnoseRpc(
+  chainId: number,
+): Promise<Array<{ url: string; ok: boolean; latest?: number; error?: string }>> {
+  const out: Array<{ url: string; ok: boolean; latest?: number; error?: string }> = [];
+  for (const url of PUBLIC_RPCS[chainId] ?? []) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { result?: string; error?: { message?: string } };
+      if (data.error) throw new Error(data.error.message || "RPC error");
+      out.push({ url, ok: true, latest: parseInt(data.result || "0", 16) });
+    } catch (e) {
+      out.push({ url, ok: false, error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+  return out;
+}
+
+/**
  * 探针：查某 EVM 链 USDT 合约最近 N 个区块的全部 Transfer（不过滤收款地址），
  * 用于验证公共 RPC 通路与日志解析是否正常。返回最新块高与解析后的转账。
  */
