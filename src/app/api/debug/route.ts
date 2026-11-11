@@ -1,23 +1,18 @@
 import { NextResponse } from "next/server";
-import { getSettings } from "@/lib/settings";
-import { getActiveAnnouncements, getEnabledCategories, getProducts } from "@/services/storefront";
+import { getDb, schema } from "@/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const db = await getDb();
   const out: Record<string, unknown> = {};
-  const tests: Record<string, () => Promise<unknown>> = {
-    settings: () => getSettings(),
-    categories: () => getEnabledCategories(),
-    products: () => getProducts({}),
-    announcements: () => getActiveAnnouncements(),
-  };
-  for (const [name, fn] of Object.entries(tests)) {
+  for (const [name, table] of Object.entries(schema)) {
+    if (!table || typeof table !== "object") continue;
     try {
-      const r = await fn();
-      out[name] = { ok: true, n: Array.isArray(r) ? r.length : typeof r };
+      await db.select().from(table as never).limit(1);
+      out[name] = { ok: true };
     } catch (e) {
-      out[name] = { ok: false, error: String(e), cause: String((e as { cause?: unknown })?.cause ?? ""), stack: (e as Error)?.stack?.slice(0, 600) };
+      out[name] = { ok: false, error: String((e as { cause?: unknown })?.cause ?? e) };
     }
   }
   return NextResponse.json(out);
