@@ -23,7 +23,7 @@ function chainOf(order: Order): UsdtChain | null {
 /**
  * USDT 多链（TRC20 + Polygon + Arbitrum）唯一金额法收款。
  * config: { chains: [{ chain, address, enabled }] }
- * secrets: env.TRONGRID_API_KEY（TRON）/ env.ETHERSCAN_API_KEY（EVM，Etherscan V2 多链）
+ * secrets: env.TRONGRID_API_KEY（TRON，可选）/ EVM 链走公共 RPC eth_getLogs（免 key）
  */
 export const usdtProvider: PaymentProvider = {
   code: "usdt",
@@ -70,12 +70,7 @@ export const usdtProvider: PaymentProvider = {
             Date.now() - 60 * 60 * 1000,
           );
         } else {
-          txs = await fetchEvmIncoming(
-            meta.evmChainId!,
-            meta.usdtContract!,
-            cc.address,
-            ctx.env.ETHERSCAN_API_KEY || "",
-          );
+          txs = await fetchEvmIncoming(meta.evmChainId!, meta.usdtContract!, cc.address);
         }
       } catch {
         continue;
