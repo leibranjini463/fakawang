@@ -27,6 +27,8 @@ const PUBLIC_RPCS: Record<number, string[]> = {
     "https://polygon-mainnet.public.blastapi.io",
     "https://polygon.blockpi.network/v1/rpc/public",
     "https://polygon.meowrpc.com",
+    "https://polygon.drpc.org",
+    "https://1rpc.io/matic",
   ],
   42161: [
     "https://arb1.arbitrum.io/rpc",
@@ -35,6 +37,7 @@ const PUBLIC_RPCS: Record<number, string[]> = {
     "https://arb-mainnet.public.blastapi.io",
     "https://arbitrum.blockpi.network/v1/rpc/public",
     "https://arbitrum.meowrpc.com",
+    "https://arbitrum.drpc.org",
   ],
 };
 
@@ -180,9 +183,25 @@ export async function fetchEvmIncoming(
  */
 export async function diagnoseRpc(
   chainId: number,
-): Promise<Array<{ url: string; ok: boolean; latest?: number; error?: string }>> {
-  const out: Array<{ url: string; ok: boolean; latest?: number; error?: string }> = [];
+  usdtContract: string,
+): Promise<
+  Array<{ url: string; blockNumber: boolean; getLogs: boolean; latest?: number; error?: string }>
+> {
+  const out: Array<{
+    url: string;
+    blockNumber: boolean;
+    getLogs: boolean;
+    latest?: number;
+    error?: string;
+  }> = [];
   for (const url of PUBLIC_RPCS[chainId] ?? []) {
+    const row: {
+      url: string;
+      blockNumber: boolean;
+      getLogs: boolean;
+      latest?: number;
+      error?: string;
+    } = { url, blockNumber: false, getLogs: false };
     try {
       const res = await fetch(url, {
         method: "POST",
@@ -190,13 +209,38 @@ export async function diagnoseRpc(
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
         signal: AbortSignal.timeout(10_000),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`blockNumber HTTP ${res.status}`);
       const data = (await res.json()) as { result?: string; error?: { message?: string } };
       if (data.error) throw new Error(data.error.message || "RPC error");
-      out.push({ url, ok: true, latest: parseInt(data.result || "0", 16) });
+      const latest = parseInt(data.result || "0", 16);
+      row.blockNumber = true;
+      row.latest = latest;
+      const res2 = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getLogs",
+          params: [
+            {
+              fromBlock: `0x${Math.max(0, latest - 1).toString(16)}`,
+              toBlock: `0x${latest.toString(16)}`,
+              address: usdtContract,
+              topics: [TRANSFER_TOPIC],
+            },
+          ],
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res2.ok) throw new Error(`getLogs HTTP ${res2.status}`);
+      const data2 = (await res2.json()) as { result?: unknown; error?: { message?: string } };
+      if (data2.error) throw new Error(data2.error.message || "RPC error");
+      row.getLogs = true;
     } catch (e) {
-      out.push({ url, ok: false, error: e instanceof Error ? e.message : String(e) });
+      row.error = e instanceof Error ? e.message : String(e);
     }
+    out.push(row);
   }
   return out;
 }
