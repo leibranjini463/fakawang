@@ -19,6 +19,7 @@ export async function GET(req: Request) {
       const probe = await fetchEvmRecentTransfers(meta.evmChainId!, meta.usdtContract!, 10);
       const row: Record<string, unknown> = {
         latest: probe.latest,
+        rpcUrl: probe.rpcUrl,
         probeCount10blocks: probe.count,
         probeSample: probe.sample.map((t) => ({
           txHash: t.txHash,
