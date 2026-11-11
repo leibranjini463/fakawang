@@ -235,8 +235,8 @@ npm run dev                      # http://localhost:3000
 | `EPAY_KEY` | | 易支付 |
 | `ALIPAY_PRIVATE_KEY` `ALIPAY_PUBLIC_KEY` | | 支付宝当面付 |
 | `BINANCE_API_KEY` `BINANCE_SECRET` | | Binance Pay |
-| `TRONGRID_API_KEY` | | USDT TRON 链查账 |
-| `ETHERSCAN_API_KEY` | | USDT Polygon / Arbitrum 查账 |
+| `TRONGRID_API_KEY` | | USDT TRON 链查账（可选） |
+| ~~`ETHERSCAN_API_KEY`~~ | | 已废弃：USDT Polygon / Arbitrum 改走免 key 公共 RPC，不再需要 |
 
 完整说明见 [`.dev.vars.example`](./.dev.vars.example)。
 
@@ -274,7 +274,7 @@ npm run dev                      # http://localhost:3000
 | 易支付 | `epay` | `{"gateway":"https://pay.example.com","pid":"1000","type":"alipay"}` | `EPAY_KEY` | Webhook |
 | 支付宝当面付 | `alipay_f2f` | `{"appId":"2021..."}` | `ALIPAY_PRIVATE_KEY`<br>`ALIPAY_PUBLIC_KEY` | Webhook |
 | **支付宝个人码** | `alipay_personal` | `{"account":"main","qrContent":"https://qr.alipay.com/..."}` | `ALIPAY_PUSH_SECRET` | 安卓端推送 |
-| USDT | `usdt` | `{"chains":[{"chain":"TRC20","address":"T...","enabled":true}]}` | `TRONGRID_API_KEY`<br>`ETHERSCAN_API_KEY` | 链上轮询 |
+| USDT | `usdt` | `{"chains":[{"chain":"TRC20","address":"T...","enabled":true}]}` | `TRONGRID_API_KEY`（可选；Polygon / Arbitrum 免 key） | 链上轮询 |
 | Binance Pay | `binance_pay` | `{}` | `BINANCE_API_KEY`<br>`BINANCE_SECRET` | Webhook |
 
 USDT 汇率在后台「系统设置」的 `usdtRate` 配置。
